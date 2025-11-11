@@ -9,7 +9,10 @@
   
 
   <title>Bangorinas AI</title>
-  <link rel="icon" type="image/png" href="./assets/Bangorinas Logo.png"/>
+  <link rel="icon" type="image/png" href="./assets/aibang.png"/>
+  <meta name="description" content="Bangorinas AI offers an innovation of AI product that focusing in offline, on-device, free, and privacy-focused AI application." />
+  <meta name="keywords" content="Bangorinas, AI, Artifical Intelligence, Effort AI, Effort 1, Offline AI, On-device AI, Open-Source, Privacy-focused AI,  Rangga Hermawan, Rangga Fermata" />
+  <meta name="author" content="Rangga Hermawan" />
   
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -52,7 +55,7 @@
     body {
      position: fixed;
       inset: 0;
-      background-image: url("./assets/nuoverlay30001.png");
+      background-image: url("./assets/AIBangBG.png");
       background-size: cover;
       display: none; /* toggled by JS */
       align-items: center;
@@ -563,7 +566,7 @@
 
 </head>
   
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="backdrop-filter: blur(10px);">
 
   <div id="side-info-ai" class="d-flex">
           <div id="side-info-header" class="text-light small">
@@ -582,7 +585,7 @@
     </div>
     
 
-    <nav class="navbar px-4 py-2 d-flex justify-content-between align-items-center shadow-sm" style="position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; backdrop-filter: blur(20px); overflow-x: auto; overflow-wrap: anywhere;">
+    <nav class="navbar px-4 py-2 d-flex justify-content-between align-items-center" style="position: absolute; top: 0; left: 0; width: 100%; z-index: 1000; overflow-x: auto; overflow-wrap: anywhere;">
      <div id="side-info-footer-1" class="actions" style="justify-content: center;">
       <a href="https://bangorinas.com" id="ai-close" >
           <img src="./assets/Infobang.png">
@@ -607,7 +610,7 @@
 
         <img src="./assets/ss1.png" id="effortss" alt="Effort Logo" class="img-fluid mx-auto d-block" style="max-width: 800px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.74);">
         
-      <div class="actions text-center ms-2 text-light" style="justify-content: center; box-shadow:#555(0px 0px 12px) ; backdrop-filter: blur(10px); border-radius: 8px;">
+      <div class="actions text-center ms-2 text-light" style="justify-content: center;">
           <h3 id="effort-btn"  role="button" alt="Effort-AI">Download</h3>
         </div>
 
@@ -641,7 +644,7 @@
 
 
       <footer class="text-center py-3 small  text-muted " style="position: absolute; bottom: 0; width: 100%;">
-        © <span id="year" ></span> Bangorinas | AI — Founded & Developed by Rangga Hermawan (A.K.A Rangga Fermata)
+        © <span id="year" ></span> Bangorinas | AI — Part of <a href="https://bangorinas.com/" class="text-muted">Bangorinas</a> family. All rights reserved.
       </footer>
       
 
@@ -710,11 +713,10 @@
       });
 
 
-      if (aiCloseBtn) {
-        aiCloseBtn.addEventListener('click', function () {
+      if (aiCloseBtn) aiCloseBtn.addEventListener('click', function () {
           window.location.href = 'https://bangorinas.com';
         });
-      }
+      
 
       if (docsBtn) {
         docsBtn.addEventListener('click', function () {
@@ -728,8 +730,4 @@
 
 </body>
 </html>
-
-
-
-
 

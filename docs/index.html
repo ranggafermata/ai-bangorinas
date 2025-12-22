@@ -646,13 +646,21 @@
         </div>
 
         <div id="effortconfirm-splash-overlay" role="dialog" aria-modal="true" aria-hidden="true">
-        <div id="effortConfirmation" class="text-center">
-          <p id="effortConfirmationText" class="text-muted">Effort model is relatively small in size (~2.0GB) should run well on CPU, and make sure you have a stable internet connection. Do you want to proceed?</p>
-          <button id="confirm-effort" class="btn btn-outline-light me-2">Download Installer</button>
-          <button id="confirm-zip" class="btn btn-outline-light me-2">Download Zip File</button>
-          <div class="actions">
-          <button id="cancel-effort-splash" class="cancel-effort">Back</button>
-          </div>
+        <div id="effortConfirmation">
+          <img src="./assets/Effort logo 1.png" alt="Effort Logo" class="img-fluid mb-3">
+        <div class="meta">Effort 1.1.4 — On-device, offline AI assistant</div>
+        <p>
+          Effort is a small and lightweight on-device text-text only AI application, it performs well on both CPU and GPU, this generalist model is designed for a general understanding of language, good for any daily task purposes, general text generation, and basic programming. 
+        </p>
+        <h5>This model is designed to run locally on your device, ensuring your data remains private and secure. No internet connection is required, making it ideal for offline use.</h5>
+          <div class="meta d-flex justify-content-center mt-3">
+            <button id="confirm-effort" class="btn btn-outline-light me-2">Download Installer</button>
+            <button id="confirm-zip" class="btn btn-outline-light me-2">Download Zip File</button>
+            </div>
+            <div class="actions">
+            <button id="cancel-effort-splash" class="cancel-effort">Back</button>
+            </div>
+            
         </div>
        </div>
       </div>
@@ -662,12 +670,14 @@
 
       <div id="menu-splash-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div id="menu-splash" role="document" aria-label="Bangorinas information">
-      <img src="./assets/Effort logo 1.png" alt="Effort Logo" class="img-fluid mb-3">
-      <div class="meta">Effort 1.1.4 — On-device, offline AI assistant</div>
+      <img src="./assets/aibang.png" alt="Effort Logo" class="img-fluid mb-3">
+      <div class="meta">Bangorinas | AI</div>
       <p>
-        Effort is a small and lightweight on-device text-text only AI application, it performs well on both CPU and GPU, this generalist model is designed for a general understanding of language, good for any daily task purposes, general text generation, and basic programming. 
+         An Artificial Intelligence division of Bangorinas, aiming to create innovative AI solutions. Its mission is to integrate technology, assistance, and privacy to deliver high-quality information and a privacy-centric on-device assistant. 
       </p>
-      <h5>This model is designed to run locally on your device, ensuring your data remains private and secure. No internet connection is required, making it ideal for offline use.</h5>
+       <p class="meta" style="margin-top: 1.5rem;">
+        © <span id="year"></span> <a href="https://bangorinas.com" target="_blank" class="text-light">Bangorinas </a> | AI 
+      </p>
       <div class="actions">
         <button class="menu-close-btn" id="menu-splash-close">Close</button>
       </div>
@@ -872,7 +882,4 @@
 
 </body>
 </html>
-
-
-
 

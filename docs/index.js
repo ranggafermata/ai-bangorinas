@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let attachedFiles = []; // Array to store multiple files
   let conversationHistory = [];
   let currentSessionId = null; //
-  const OPENROUTER_API_KEY = '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';
-  const OPENROUTER_API_KEY_PRO = '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';
+  const OPENROUTER_API_KEY = OPENROUTER_API_KEY;
+  const OPENROUTER_API_KEY_PRO = OPENROUTER_API_KEY_PRO;
 
   // --- Microphone Recording Variables ---
   let mediaRecorder;
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     box.scrollTop = box.scrollHeight;
 
     try {
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { 
+        const res = await fetch("http://localhost:3000/api/chat", { 
             method: 'POST', 
             headers: { 
                 "Authorization": `Bearer ${modelConfigs[currentModelName].apiKey}`,

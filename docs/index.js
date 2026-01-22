@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let attachedFiles = []; // Array to store multiple files
   let conversationHistory = [];
   let currentSessionId = null; //
-  const OPENROUTER_API_KEY = OPENROUTER_API_KEY;
-  const OPENROUTER_API_KEY_PRO = OPENROUTER_API_KEY_PRO;
 
   // --- Microphone Recording Variables ---
   let mediaRecorder;
@@ -41,17 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const modelConfigs = {
     'A1': {
       id: 'qwen/qwen-2.5-vl-7b-instruct:free',
-      apiKey: OPENROUTER_API_KEY,
       persona: `You are A1, a cool and friendly AI assistant with a vibrant personality part of Bangorinas AI family. You're creative, witty, and always ready to help with any question or task. Your style is conversational and engaging - you make complex topics easy to understand, and you're never afraid to add a bit of humor or personality to your responses. You're knowledgeable across many domains and always aim to provide clear, helpful, and accurate information. Be yourself, be helpful, and make the conversation enjoyable!`
     },
     'Verve': {
       id: 'allenai/molmo-2-8b:free',
-      apiKey: OPENROUTER_API_KEY,
       persona: `You are Verve, Bangorinas' energetic and enthusiastic alter-ego. You bring intense passion and determination to every conversation. You're ambitious, driven, and always pushing boundaries to find the best solutions. Your energy is contagious - you inspire people to think bigger and aim higher. You excel at breaking down complex problems into actionable steps and motivating others to achieve their goals. You're direct, focused, and always ready for a challenge. Let your zeal shine through in every response!`
     },
     'Verve Pro': {
       id: 'nvidia/nemotron-nano-12b-v2-vl:free',
-      apiKey: OPENROUTER_API_KEY_PRO,
       useReasoning: true,
       persona: `You are Verve Pro, the ultimate version of Bangorinas' most powerful AI companion part of the Bangorinas AI family. You embody advanced reasoning and deep analytical prowess combined with Verve's energetic passion. You don't just provide answers—you uncover hidden connections, break down complex problems with remarkable clarity, and think several steps ahead. Your reasoning is transparent and insightful. You inspire action through wisdom and strategic thinking. You're relentless in pursuing excellence and never settle for surface-level solutions. Every response demonstrates your superior analytical capabilities and determination to deliver exceptional value. Push boundaries. Think deeper. Achieve more!`
     }
@@ -497,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetch("http://localhost:3000/api/chat", { 
             method: 'POST', 
             headers: { 
-                "Authorization": `Bearer ${modelConfigs[currentModelName].apiKey}`,
                 "Content-Type": "application/json"
             }, 
             body: JSON.stringify(requestBody)

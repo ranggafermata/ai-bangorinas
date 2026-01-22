@@ -10,6 +10,19 @@ app.use(express.json({ limit: '50mb' }));
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_API_KEY_PRO = process.env.OPENROUTER_API_KEY_PRO || '';
 
+// Add this endpoint
+app.get('/api/env', (req, res) => {
+  res.json({
+    apiUrl: process.env.PUBLIC_API_URL || ''
+  });
+});
+
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Backend is running' });
+});
+
 // Firebase config endpoint
 app.get('/api/config', (req, res) => {
   const firebaseConfig = {

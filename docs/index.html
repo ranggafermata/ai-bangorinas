@@ -30,19 +30,22 @@
 
   <script>
 
-  // Firebase initialization
-  const firebaseConfig = {
-    apiKey: "AIzaSyC3v4TFdCxu_aFADmcCZNBqwZi17V4OtE0",
-    authDomain: "fermata-platform-36432.firebaseapp.com",
-    projectId: "fermata-platform-36432",
-    storageBucket: "fermata-platform-36432.firebasestorage.app",
-    messagingSenderId: "571135432891",
-    appId: "1:571135432891:web:b7b030b47ac010f6bcf19e"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  // Firebase initialization - fetch config from backend
+  async function initializeFirebase() {
+    try {
+      const response = await fetch('http://localhost:3000/api/config');
+      const firebaseConfig = await response.json();
+      
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+    } catch (error) {
+      console.error('Failed to load Firebase config:', error);
+    }
+  }
+  
+  // Initialize Firebase on page load
+  initializeFirebase();
 
   </script>
   <script src="./config.js"></script>

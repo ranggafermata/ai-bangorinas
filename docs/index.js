@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mediaItems = document.getElementById('media-items');
   const fileInput = document.getElementById('file-input');
   const micBtn = document.getElementById('mic-btn');
+  const API_BASE = window.API_URL || window.location.origin;
 
   let attachedFiles = []; // Array to store multiple files
   let conversationHistory = [];
@@ -489,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
     box.scrollTop = box.scrollHeight;
 
     try {
-        const res = await fetch("http://localhost:3000/api/chat", { 
+        const res = await fetch(`${API_BASE}/api/chat`, { 
             method: 'POST', 
             headers: { 
                 "Content-Type": "application/json"

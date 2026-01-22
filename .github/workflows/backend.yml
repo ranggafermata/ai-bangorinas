@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      PUBLIC_API_URL: https://ai.bangorinas.com/
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       OPENROUTER_API_KEY_PRO: ${{ secrets.OPENROUTER_API_KEY_PRO }}
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}

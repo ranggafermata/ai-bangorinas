@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account — Bangorinas | AI</title>
+  <link rel="icon" type="image/png" href="./assets/Bangorinas_AI_logo.png" />
+  <meta name="description" content="Your Bangorinas AI account — manage downloads and purchases." />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+  <script src="./js/theme.js"></script>
+</head>
+
+<body>
+
+  <!-- Ambient background -->
+  <div class="bg-glow" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav id="main-nav">
+    <a href="index.html" class="nav-brand">
+      <img src="./assets/Bangorinas_AI_logo.png" alt="Bangorinas AI" />
+    </a>
+    <ul class="nav-center" id="nav-center">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" aria-label="Toggle theme">&#9728;</button>
+      <a href="account.html" class="nav-user nav-auth-logged-in hidden">
+        <div class="nav-user-avatar"></div>
+        <span class="nav-user-name"></span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Account Page -->
+  <div class="account-container" id="account-page">
+    <div class="spinner mt-3" id="loading-spinner"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; <span id="year"></span> <a href="https://bangorinas.com/">Bangorinas</a> | AI &mdash; Part of the Bangorinas family. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="./js/firebase-auth.js"></script>
+  <script src="./js/firestore-links.js"></script>
+  <script src="./js/auth-guard.js"></script>
+  <script src="./js/checkout.js"></script>
+  <script src="./js/products-data.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    async function handleAccountDownload(productId) {
+      const url = await getDownloadLink(productId);
+      if (url) {
+        window.open(url, '_blank', 'noopener');
+      } else {
+        alert('Download link not available. Please try again later.');
+      }
+    }
+
+    initAuthUI();
+    requireAuth();
+
+    (function () {
+      const page = document.getElementById('account-page');
+      const spinner = document.getElementById('loading-spinner');
+
+      // Handle purchase return from Dodo Payments
+      const purchaseResult = checkout.handlePurchaseReturn();
+
+      onAuthChanged(user => {
+        if (!user) return; // requireAuth will redirect
+        spinner.remove();
+        renderAccount(user, purchaseResult);
+      });
+
+      function renderAccount(user, purchaseResult) {
+        const displayName = user.displayName || user.email.split('@')[0];
+        const initial = displayName[0].toUpperCase();
+        const purchases = checkout.getPurchases();
+
+        // Success alert
+        let alertHTML = '';
+        if (purchaseResult && purchaseResult.success) {
+          const p = getProductById(purchaseResult.productId);
+          alertHTML = `
+            <div class="alert alert-success visible" style="margin-bottom: 1.5rem;">
+              &#10003; Purchase successful! ${p ? `"${p.name}" has been added to your account.` : 'Your product is now available.'}
+            </div>`;
+        }
+
+        // Free downloads
+        const freeProducts = PRODUCTS.filter(p => p.category === 'free');
+        const freeHTML = freeProducts.map(p => `
+          <div class="download-item">
+            <img src="${p.images.logo}" alt="${p.name}" />
+            <div class="download-item-info">
+              <h4>${p.name}</h4>
+              <p>Free</p>
+            </div>
+            <button onclick="handleAccountDownload('${p.id}')" class="btn-primary btn-sm">Download</button>
+          </div>
+        `).join('');
+
+        // Purchased products
+        const purchasedProducts = PRODUCTS.filter(p => purchases.includes(p.id));
+        let purchasedHTML = '';
+        if (purchasedProducts.length) {
+          purchasedHTML = purchasedProducts.map(p => {
+            // For bundles, show all included products
+            if (p.includedProducts) {
+              return p.includedProducts.map(ip => {
+                const fullProduct = PRODUCTS.find(fp => fp.id === ip.id);
+                const logo = fullProduct ? fullProduct.images.logo : p.images.logo;
+                return `
+                  <div class="download-item">
+                    <img src="${logo}" alt="${ip.name}" />
+                    <div class="download-item-info">
+                      <h4>${ip.name}</h4>
+                      <p>${ip.bonus ? 'Bonus — Free' : 'NuClear Bundle'}</p>
+                    </div>
+                    <button onclick="handleAccountDownload('${ip.id}')" class="btn-primary btn-sm">Download</button>
+                  </div>`;
+              }).join('');
+            }
+            return `
+              <div class="download-item">
+                <img src="${p.images.logo}" alt="${p.name}" />
+                <div class="download-item-info">
+                  <h4>${p.name}</h4>
+                  <p>Premium</p>
+                </div>
+                <button onclick="handleAccountDownload('${p.id}')" class="btn-primary btn-sm">Download</button>
+              </div>`;
+          }).join('');
+        } else {
+          purchasedHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              <p>No purchases yet.</p>
+              <a href="products.html" class="btn-secondary btn-sm mt-2" style="display: inline-flex;">Browse Premium Products &rarr;</a>
+            </div>`;
+        }
+
+        page.innerHTML = `
+          ${alertHTML}
+          <div class="account-header fade-in-up">
+            <div class="account-avatar">
+              ${user.photoURL
+                ? `<img src="${encodeURI(user.photoURL)}" alt="Avatar" referrerpolicy="no-referrer" />`
+                : initial}
+            </div>
+            <div class="account-info">
+              <h1>${displayName}</h1>
+              <p>${user.email}</p>
+            </div>
+            <div style="margin-left: auto;">
+              <button class="btn-danger" id="signout-btn">Sign Out</button>
+            </div>
+          </div>
+
+          <div class="account-section fade-in-up" style="animation-delay: 0.1s;">
+            <h2>&#11015; Free Downloads</h2>
+            <div class="download-list">
+              ${freeHTML}
+            </div>
+          </div>
+
+          <div class="account-section fade-in-up" style="animation-delay: 0.2s;">
+            <h2>&#128176; Your Purchases</h2>
+            <div class="download-list">
+              ${purchasedHTML}
+            </div>
+          </div>
+        `;
+
+        // Sign out handler
+        document.getElementById('signout-btn').addEventListener('click', async () => {
+          await signOut();
+          window.location.href = 'index.html';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

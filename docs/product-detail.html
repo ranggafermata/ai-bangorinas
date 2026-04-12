@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product — Bangorinas | AI</title>
+  <link rel="icon" type="image/png" href="./assets/Bangorinas_AI_logo.png" />
+  <meta name="description" content="View product details, pricing, and download information." />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+  <script src="./js/theme.js"></script>
+</head>
+
+<body>
+
+  <!-- Ambient background -->
+  <div class="bg-glow" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav id="main-nav">
+    <a href="index.html" class="nav-brand">
+      <img src="./assets/Bangorinas_AI_logo.png" alt="Bangorinas AI" />
+    </a>
+    <ul class="nav-center" id="nav-center">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html" class="active">Products</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" aria-label="Toggle theme">&#9728;</button>
+      <a href="login.html" class="nav-auth-btn nav-auth-logged-out"><span>Login</span> &rarr;</a>
+      <a href="account.html" class="nav-user nav-auth-logged-in hidden">
+        <div class="nav-user-avatar"></div>
+        <span class="nav-user-name"></span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Product Detail Container -->
+  <div class="detail-container" id="detail-container">
+    <div class="spinner mt-3" id="loading-spinner"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; <span id="year"></span> <a href="https://bangorinas.com/">Bangorinas</a> | AI &mdash; Part of the Bangorinas family. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="./js/firebase-auth.js"></script>
+  <script src="./js/firestore-links.js"></script>
+  <script src="./js/auth-guard.js"></script>
+  <script src="./js/checkout.js"></script>
+  <script src="./js/products-data.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    async function handleDownload(productId) {
+      const btn = document.getElementById('download-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;margin:0;border-width:2px;display:inline-block;vertical-align:middle;"></div> Loading...';
+      btn.disabled = true;
+      const url = await getDownloadLink(productId);
+      if (url) {
+        window.open(url, '_blank', 'noopener');
+      } else {
+        alert('Download link not available. Please try again later.');
+      }
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+
+    initAuthUI();
+    initAuthGating();
+
+    (function () {
+      const container = document.getElementById('detail-container');
+      const spinner = document.getElementById('loading-spinner');
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id');
+      const product = productId ? getProductById(productId) : null;
+
+      if (!product) {
+        spinner.remove();
+        container.innerHTML = `
+          <div class="text-center" style="padding-top: 4rem;">
+            <h1>Product Not Found</h1>
+            <p class="subtitle">The product you're looking for doesn't exist.</p>
+            <a href="products.html" class="btn-primary">Browse Products &rarr;</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Update page title
+      document.title = `${product.name} — Bangorinas | AI`;
+
+      // Build pricing HTML
+      let pricingHTML = '';
+      if (product.category === 'free') {
+        pricingHTML = `
+          <div class="detail-pricing">
+            <div class="price-main gradient-text">Free</div>
+          </div>`;
+      } else if (product.discountUSD) {
+        pricingHTML = `
+          <div class="detail-pricing">
+            <div><span class="price-original">$${product.priceUSD.toFixed(2)}</span>
+            <span class="price-main">$${product.discountUSD.toFixed(2)}</span>
+            <span class="discount-tag" style="display:inline-block; background:rgba(34,197,94,0.15); color:var(--success); font-size:0.75rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:4px; margin-left:0.5rem;">50% OFF</span></div>
+            <div class="price-sub">${formatPriceIDR(product)}</div>
+          </div>`;
+      } else {
+        pricingHTML = `
+          <div class="detail-pricing">
+            <div class="price-main">${formatPrice(product)}</div>
+            <div class="price-sub">${formatPriceIDR(product)}</div>
+          </div>`;
+      }
+
+      // Bundle includes section
+      let bundleHTML = '';
+      if (product.includedProducts) {
+        const items = product.includedProducts.map(ip => `
+          <li>
+            <span class="check">&#10003;</span>
+            ${ip.name} — ${ip.desc}
+            ${ip.bonus ? '<span class="bonus-tag">FREE BONUS</span>' : ''}
+          </li>
+        `).join('');
+        bundleHTML = `
+          <div class="bundle-includes">
+            <h3>Included in this bundle</h3>
+            <ul>${items}</ul>
+          </div>`;
+      }
+
+      // Features list
+      const featuresHTML = product.features.map(f =>
+        `<li style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; color:var(--text-muted);">
+          <span style="color:var(--accent);">&#10003;</span> ${f}
+        </li>`
+      ).join('');
+
+      // Action button (depends on auth + category)
+      let actionHTML = '';
+      if (product.category === 'free') {
+        actionHTML = `
+          <div data-auth="guest">
+            <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn-primary">Login to Download &rarr;</a>
+          </div>
+          <div data-auth="required" class="hidden">
+            <button class="btn-primary" id="download-btn" onclick="handleDownload('${product.id}')">&#11015; Download</button>
+          </div>`;
+      } else {
+        actionHTML = `
+          <div data-auth="guest">
+            <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn-primary">Login to Purchase &rarr;</a>
+          </div>
+          <div data-auth="required" class="hidden">
+            <button class="btn-primary" id="buy-btn" onclick="checkout.buyProduct(getProductById('${product.id}'))">Buy Now &rarr;</button>
+            <p class="text-muted mt-1" style="font-size: 0.8rem;">Secure checkout powered by Dodo Payments</p>
+          </div>`;
+      }
+
+      // Render full detail page
+      spinner.remove();
+      container.innerHTML = `
+        <div class="detail-hero fade-in-up">
+          <img src="${product.images.splash}" alt="${product.name}" />
+          <div class="detail-info">
+            <span class="product-badge ${getBadgeClass(product.category)}">${getBadgeLabel(product.category)}</span>
+            <h1>${product.name}</h1>
+            <p class="description">${product.description}</p>
+            ${pricingHTML}
+            ${bundleHTML}
+            ${actionHTML}
+          </div>
+        </div>
+
+        <div class="fade-in-up" style="animation-delay: 0.2s;">
+          <h2 style="text-align: left; font-size: 1.3rem; margin-bottom: 1rem;">Features</h2>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.6rem;">
+            ${featuresHTML}
+          </ul>
+        </div>
+
+        <div class="text-center mt-3 fade-in-up" style="animation-delay: 0.35s;">
+          <a href="products.html" class="btn-secondary">&larr; Back to Products</a>
+        </div>
+      `;
+    })();
+  </script>
+</body>
+</html>

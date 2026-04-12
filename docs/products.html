@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products — Bangorinas | AI</title>
+  <link rel="icon" type="image/png" href="./assets/Bangorinas_AI_logo.png" />
+  <meta name="description" content="Browse free and premium offline AI applications from Bangorinas AI. Effort 2, Sweet Juices, and the NuClear bundle." />
+  <meta property="og:title" content="Products — Bangorinas | AI" />
+  <meta property="og:description" content="Free and premium offline AI apps. Browse the full catalog." />
+  <meta property="og:image" content="./assets/Bangorinas_AI_logo.png" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+  <script src="./js/theme.js"></script>
+</head>
+
+<body>
+
+  <!-- Ambient background -->
+  <div class="bg-glow" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav id="main-nav">
+    <a href="index.html" class="nav-brand">
+      <img src="./assets/Bangorinas_AI_logo.png" alt="Bangorinas AI" />
+    </a>
+    <ul class="nav-center" id="nav-center">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html" class="active">Products</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#about">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" aria-label="Toggle theme">&#9728;</button>
+      <a href="login.html" class="nav-auth-btn nav-auth-logged-out"><span>Login</span> &rarr;</a>
+      <a href="account.html" class="nav-user nav-auth-logged-in hidden">
+        <div class="nav-user-avatar"></div>
+        <span class="nav-user-name"></span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Products Page -->
+  <section style="min-height: auto; padding-top: 8rem; padding-bottom: 2rem;">
+    <p class="section-label reveal">Catalog</p>
+    <h1 class="reveal">All <span class="gradient-text">Products</span></h1>
+    <p class="subtitle reveal">Free and premium offline AI tools — powered by on-device AI models.</p>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs reveal" id="filter-tabs">
+      <button class="filter-tab active" data-filter="all">All</button>
+      <button class="filter-tab" data-filter="free">Free</button>
+      <button class="filter-tab" data-filter="premium">Premium</button>
+      <button class="filter-tab" data-filter="bundle">Bundle</button>
+    </div>
+  </section>
+
+  <!-- NuClear Bundle Hero -->
+  <section id="bundle-hero" style="min-height: auto; padding-top: 0; padding-bottom: 3rem;" data-category="bundle">
+    <div style="max-width: 900px; width: 100%;">
+      <a href="product-detail.html?id=nuclear-bundle" class="product-card card-featured reveal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; text-align: left; padding: 2.5rem;" id="bundle-card">
+        <!-- Rendered by JS -->
+      </a>
+    </div>
+  </section>
+
+  <!-- Product Grid -->
+  <section style="min-height: auto; padding-top: 0; padding-bottom: 4rem;">
+    <div class="products-grid" id="products-grid" style="max-width: 1100px;">
+      <!-- Rendered by JS -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; <span id="year"></span> <a href="https://bangorinas.com/">Bangorinas</a> | AI &mdash; Part of the Bangorinas family. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="./js/firebase-auth.js"></script>
+  <script src="./js/firestore-links.js"></script>
+  <script src="./js/auth-guard.js"></script>
+  <script src="./js/products-data.js"></script>
+  <script src="./js/nav.js"></script>
+  <script>
+    initAuthUI();
+
+    (function () {
+      const grid = document.getElementById('products-grid');
+      const bundleCard = document.getElementById('bundle-card');
+      const bundleHero = document.getElementById('bundle-hero');
+      let currentFilter = 'all';
+
+      // Render NuClear bundle hero
+      const nuclear = getProductById('nuclear-bundle');
+      if (nuclear && bundleCard) {
+        bundleCard.innerHTML = `
+          <div>
+            <img src="${nuclear.images.splash}" alt="${nuclear.name}" style="width: 100%; border-radius: 16px;" />
+          </div>
+          <div>
+            <span class="product-badge badge-bundle">Bundle</span>
+            <h2 style="text-align: left; margin-bottom: 0.75rem;">${nuclear.name}</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">${nuclear.shortDesc}</p>
+            <div class="product-price" style="font-size: 1.5rem;">
+              <span class="original">$${nuclear.priceUSD.toFixed(2)}</span>
+              $${nuclear.discountUSD.toFixed(2)}
+              <span class="discount-tag">50% OFF</span>
+            </div>
+            <div class="product-price-sub">${formatPriceIDR(nuclear)}</div>
+            <div style="margin-top: 1.25rem;">
+              <span class="card-arrow" style="font-size: 0.95rem;">Learn more <span>&rarr;</span></span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Render individual product cards (excluding bundle)
+      function renderGrid(filter) {
+        grid.innerHTML = '';
+        const products = filter === 'all'
+          ? PRODUCTS.filter(p => p.category !== 'bundle')
+          : PRODUCTS.filter(p => p.category === filter);
+
+        products.forEach((p, i) => {
+          const card = document.createElement('a');
+          card.href = `product-detail.html?id=${p.id}`;
+          card.className = `product-card reveal reveal-delay-${(i % 4) + 1}`;
+          card.setAttribute('data-category', p.category);
+
+          let priceHTML = '';
+          if (p.category === 'free') {
+            priceHTML = '<div class="product-price">Free</div>';
+          } else if (p.discountUSD) {
+            priceHTML = `
+              <div class="product-price">
+                <span class="original">$${p.priceUSD.toFixed(2)}</span>
+                $${p.discountUSD.toFixed(2)}
+                <span class="discount-tag">50% OFF</span>
+              </div>
+              <div class="product-price-sub">${formatPriceIDR(p)}</div>`;
+          } else {
+            priceHTML = `
+              <div class="product-price">${formatPrice(p)}</div>
+              <div class="product-price-sub">${formatPriceIDR(p)}</div>`;
+          }
+
+          card.innerHTML = `
+            <span class="product-badge ${getBadgeClass(p.category)}">${getBadgeLabel(p.category)}</span>
+            <img src="${p.images.logo}" alt="${p.name}" />
+            <h3>${p.name}</h3>
+            <p>${p.shortDesc}</p>
+            ${priceHTML}
+            <span class="card-arrow">View details <span>&rarr;</span></span>
+          `;
+          grid.appendChild(card);
+        });
+
+        // Re-observe for scroll reveal
+        grid.querySelectorAll('.reveal').forEach(el => {
+          el.classList.remove('visible');
+          const obs = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
+            });
+          }, { threshold: 0.12 });
+          obs.observe(el);
+        });
+      }
+
+      // Filter tabs
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentFilter = tab.dataset.filter;
+
+          // Show/hide bundle hero
+          if (currentFilter === 'all' || currentFilter === 'bundle') {
+            bundleHero.style.display = '';
+          } else {
+            bundleHero.style.display = 'none';
+          }
+
+          // Hide grid for bundle-only filter
+          if (currentFilter === 'bundle') {
+            grid.parentElement.style.display = 'none';
+          } else {
+            grid.parentElement.style.display = '';
+            renderGrid(currentFilter);
+          }
+        });
+      });
+
+      // Initial render
+      renderGrid('all');
+    })();
+  </script>
+</body>
+</html>

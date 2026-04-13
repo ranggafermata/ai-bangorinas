@@ -129,11 +129,26 @@
   <script src="./js/firebase-auth.js"></script>
   <script src="./js/firestore-links.js"></script>
   <script src="./js/auth-guard.js"></script>
+  <script src="./js/checkout.js"></script>
   <script src="./js/products-data.js"></script>
   <script src="./js/nav.js"></script>
   <script>
     // Initialize auth UI in nav
     initAuthUI();
+
+    // If returning from Dodo payment, redirect to account page
+    (function () {
+      try {
+        const pending = JSON.parse(localStorage.getItem('bangorinas-pending-purchase'));
+        if (pending && pending.productId) {
+          const twoHours = 2 * 60 * 60 * 1000;
+          if (Date.now() - pending.timestamp < twoHours) {
+            window.location.href = 'account.html';
+            return;
+          }
+        }
+      } catch (e) { /* ignore */ }
+    })();
 
     // Render featured products (Effort 2 Rapid, Sweet Juices Lite, NuClear Bundle)
     (function () {

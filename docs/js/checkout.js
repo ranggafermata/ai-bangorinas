@@ -40,41 +40,43 @@
     window.location.href = product.dodoLink;
   }
 
-  // Check for purchase success — handles both URL params and pending purchase fallback
+  // Check for purchase success — uses Dodo's status param + localStorage pending purchase
   function handlePurchaseReturn() {
-    // Method 1: Check URL query params (if Dodo sends them)
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get('purchase');
-    const productId = params.get('product');
-
-    if (status === 'success' && productId) {
-      savePurchase(productId);
-      localStorage.removeItem(PENDING_PURCHASE_KEY);
-      const url = new URL(window.location);
-      url.searchParams.delete('purchase');
-      url.searchParams.delete('product');
-      window.history.replaceState({}, '', url);
-      return { success: true, productId };
-    }
-
-    // Method 2: Check pending purchase from localStorage
+    // Check for pending purchase in localStorage
+    let pending = null;
     try {
-      const pending = JSON.parse(localStorage.getItem(PENDING_PURCHASE_KEY));
-      if (pending && pending.productId) {
-        // Only accept pending purchases from the last 2 hours
-        const twoHours = 2 * 60 * 60 * 1000;
-        if (Date.now() - pending.timestamp < twoHours) {
-          savePurchase(pending.productId);
-          localStorage.removeItem(PENDING_PURCHASE_KEY);
-          return { success: true, productId: pending.productId };
-        } else {
-          // Expired — clear it
-          localStorage.removeItem(PENDING_PURCHASE_KEY);
-        }
-      }
+      pending = JSON.parse(localStorage.getItem(PENDING_PURCHASE_KEY));
     } catch { /* ignore */ }
 
-    return null;
+    if (!pending || !pending.productId) return null;
+
+    // Only accept pending purchases from the last 2 hours
+    const twoHours = 2 * 60 * 60 * 1000;
+    if (Date.now() - pending.timestamp >= twoHours) {
+      localStorage.removeItem(PENDING_PURCHASE_KEY);
+      return null;
+    }
+
+    // Check if Dodo confirmed success via URL params (status=succeeded)
+    const params = new URLSearchParams(window.location.search);
+    const dodoStatus = params.get('status');
+
+    if (dodoStatus === 'succeeded' || dodoStatus === 'success') {
+      // Dodo confirmed — save the purchase
+      savePurchase(pending.productId);
+      localStorage.removeItem(PENDING_PURCHASE_KEY);
+      // Clean Dodo params from URL
+      const url = new URL(window.location);
+      url.search = '';
+      window.history.replaceState({}, '', url);
+      return { success: true, productId: pending.productId };
+    }
+
+    // No Dodo params but pending exists (user navigated to account manually)
+    // Still save it — if they completed payment Dodo would have redirected them
+    savePurchase(pending.productId);
+    localStorage.removeItem(PENDING_PURCHASE_KEY);
+    return { success: true, productId: pending.productId };
   }
 
   // Expose globally

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -58,6 +58,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
   <script src="./js/firebase-auth.js"></script>
   <script src="./js/firestore-links.js"></script>
   <script src="./js/auth-guard.js"></script>
@@ -81,27 +82,40 @@
       const page = document.getElementById('account-page');
       const spinner = document.getElementById('loading-spinner');
 
-      // Handle purchase return from Dodo Payments
-      const purchaseResult = checkout.handlePurchaseReturn();
-
-      onAuthChanged(user => {
+      onAuthChanged(async (user) => {
         if (!user) return; // requireAuth will redirect
+
+        // Step 1: Verify payment if returning from Dodo checkout
+        let purchaseResult = null;
+        try {
+          purchaseResult = await checkout.handlePurchaseReturn();
+        } catch (err) {
+          console.error('Purchase verification error:', err);
+        }
+
+        // Step 2: Load purchases from Firestore
+        const purchases = await checkout.getPurchases();
+
         spinner.remove();
-        renderAccount(user, purchaseResult);
+        renderAccount(user, purchaseResult, purchases);
       });
 
-      function renderAccount(user, purchaseResult) {
+      function renderAccount(user, purchaseResult, purchases) {
         const displayName = user.displayName || user.email.split('@')[0];
         const initial = displayName[0].toUpperCase();
-        const purchases = checkout.getPurchases();
 
-        // Success alert
+        // Alert banners
         let alertHTML = '';
         if (purchaseResult && purchaseResult.success) {
           const p = getProductById(purchaseResult.productId);
           alertHTML = `
             <div class="alert alert-success visible" style="margin-bottom: 1.5rem;">
               &#10003; Purchase successful! ${p ? `"${p.name}" has been added to your account.` : 'Your product is now available.'}
+            </div>`;
+        } else if (purchaseResult && !purchaseResult.success) {
+          alertHTML = `
+            <div class="alert alert-error visible" style="margin-bottom: 1.5rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444;">
+              &#10007; Payment verification failed. ${purchaseResult.error || 'Please contact support if you were charged.'}
             </div>`;
         }
 

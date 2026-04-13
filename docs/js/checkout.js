@@ -1,88 +1,126 @@
-// Dodo Payments — redirect to hosted checkout and handle success
+// Dodo Payments — server-verified purchases via Firebase Cloud Functions
+// Purchases are stored in Firestore (not localStorage) and verified via Dodo API
 (function () {
-  const PURCHASE_STORAGE_KEY = 'bangorinas-purchases';
-  const PENDING_PURCHASE_KEY = 'bangorinas-pending-purchase';
+  const FUNCTIONS_REGION = 'asia-southeast1';
+  let _functions = null;
 
-  // Get purchased product IDs from localStorage
-  function getPurchases() {
+  function getFunctions() {
+    if (!_functions) {
+      initFirebase();
+      _functions = firebase.app().functions(FUNCTIONS_REGION);
+    }
+    return _functions;
+  }
+
+  // ─── Read purchases from Firestore ────────────────────────────────────────
+  // Returns array of product IDs the current user has purchased
+  async function getPurchases() {
+    const user = getCurrentUser();
+    if (!user) return [];
     try {
-      return JSON.parse(localStorage.getItem(PURCHASE_STORAGE_KEY)) || [];
-    } catch {
+      const snap = await getFirestoreDB()
+        .collection('purchases')
+        .doc(user.uid)
+        .collection('items')
+        .get();
+      return snap.docs.map(d => d.data().productId);
+    } catch (err) {
+      console.error('Failed to fetch purchases:', err.message);
       return [];
     }
   }
 
-  // Save a purchase
-  function savePurchase(productId) {
-    const purchases = getPurchases();
-    if (!purchases.includes(productId)) {
-      purchases.push(productId);
-      localStorage.setItem(PURCHASE_STORAGE_KEY, JSON.stringify(purchases));
+  // Check if a specific product is purchased (async)
+  async function isPurchased(productId) {
+    const user = getCurrentUser();
+    if (!user) return false;
+    try {
+      const doc = await getFirestoreDB()
+        .collection('purchases')
+        .doc(user.uid)
+        .collection('items')
+        .doc(productId)
+        .get();
+      return doc.exists;
+    } catch {
+      return false;
     }
   }
 
-  // Check if product is purchased
-  function isPurchased(productId) {
-    return getPurchases().includes(productId);
-  }
-
-  // Redirect to Dodo Payment Link
-  function buyProduct(product) {
+  // ─── Buy product ──────────────────────────────────────────────────────────
+  // 1. Write pending purchase to Firestore (server-side record)
+  // 2. Redirect to Dodo Payment Link (pre-filled with user email)
+  async function buyProduct(product) {
     if (!product || !product.dodoLink || product.dodoLink === '#') {
       alert('Payment link is not configured yet. Please check back soon!');
       return;
     }
-    // Save pending purchase before redirect — Dodo may not return query params
-    localStorage.setItem(PENDING_PURCHASE_KEY, JSON.stringify({
-      productId: product.id,
-      timestamp: Date.now()
-    }));
-    window.location.href = product.dodoLink;
+
+    const user = getCurrentUser();
+    if (!user) {
+      window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+      return;
+    }
+
+    try {
+      // Write pending purchase to Firestore
+      await getFirestoreDB().collection('pendingPurchases').add({
+        userId: user.uid,
+        productId: product.id,
+        email: (user.email || '').toLowerCase(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (err) {
+      console.error('Failed to save pending purchase:', err.message);
+      alert('Something went wrong. Please try again.');
+      return;
+    }
+
+    // Append email to Dodo link URL for pre-fill + webhook matching
+    let paymentUrl = product.dodoLink;
+    if (user.email) {
+      const sep = paymentUrl.includes('?') ? '&' : '?';
+      paymentUrl += sep + 'email=' + encodeURIComponent(user.email);
+    }
+
+    window.location.href = paymentUrl;
   }
 
-  // Check for purchase success — uses Dodo's status param + localStorage pending purchase
-  function handlePurchaseReturn() {
-    // Check for pending purchase in localStorage
-    let pending = null;
-    try {
-      pending = JSON.parse(localStorage.getItem(PENDING_PURCHASE_KEY));
-    } catch { /* ignore */ }
+  // ─── Verify purchase after Dodo redirect ──────────────────────────────────
+  // Extracts payment_id from URL, calls verifyPayment Cloud Function
+  // Returns: { success: true, productId } or { success: false, error }
+  async function handlePurchaseReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('payment_id');
+    const dodoStatus = params.get('status');
 
-    if (!pending || !pending.productId) return null;
-
-    // Only accept pending purchases from the last 2 hours
-    const twoHours = 2 * 60 * 60 * 1000;
-    if (Date.now() - pending.timestamp >= twoHours) {
-      localStorage.removeItem(PENDING_PURCHASE_KEY);
+    // Only proceed if Dodo sent us back with status=succeeded + a payment_id
+    if (!paymentId || dodoStatus !== 'succeeded') {
       return null;
     }
 
-    // Check if Dodo confirmed success via URL params (status=succeeded)
-    const params = new URLSearchParams(window.location.search);
-    const dodoStatus = params.get('status');
+    // Clean URL params immediately
+    const cleanUrl = new URL(window.location);
+    cleanUrl.search = '';
+    window.history.replaceState({}, '', cleanUrl);
 
-    if (dodoStatus === 'succeeded' || dodoStatus === 'success') {
-      // Dodo confirmed — save the purchase
-      savePurchase(pending.productId);
-      localStorage.removeItem(PENDING_PURCHASE_KEY);
-      // Clean Dodo params from URL
-      const url = new URL(window.location);
-      url.search = '';
-      window.history.replaceState({}, '', url);
-      return { success: true, productId: pending.productId };
+    // Wait for auth to be ready
+    const user = getCurrentUser();
+    if (!user) return null;
+
+    try {
+      const verifyPayment = getFunctions().httpsCallable('verifyPayment');
+      const result = await verifyPayment({ paymentId: paymentId });
+      return { success: true, productId: result.data.productId };
+    } catch (err) {
+      console.error('Payment verification failed:', err.message);
+      return { success: false, error: err.message };
     }
-
-    // No Dodo params but pending exists (user navigated to account manually)
-    // Still save it — if they completed payment Dodo would have redirected them
-    savePurchase(pending.productId);
-    localStorage.removeItem(PENDING_PURCHASE_KEY);
-    return { success: true, productId: pending.productId };
   }
 
   // Expose globally
   window.checkout = {
     getPurchases,
-    savePurchase,
     isPurchased,
     buyProduct,
     handlePurchaseReturn

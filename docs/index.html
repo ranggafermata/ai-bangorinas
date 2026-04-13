@@ -126,6 +126,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
   <script src="./js/firebase-auth.js"></script>
   <script src="./js/firestore-links.js"></script>
   <script src="./js/auth-guard.js"></script>
@@ -136,23 +137,14 @@
     // Initialize auth UI in nav
     initAuthUI();
 
-    // If returning from Dodo payment, redirect to account page
+    // If returning from Dodo payment, redirect to account page with payment_id
     (function () {
       var params = new URLSearchParams(window.location.search);
       var dodoStatus = params.get('status');
-      // Dodo redirects here with ?status=succeeded — check that + pending purchase
-      if (dodoStatus === 'succeeded' || dodoStatus === 'success') {
-        try {
-          var pending = JSON.parse(localStorage.getItem('bangorinas-pending-purchase'));
-          if (pending && pending.productId) {
-            var twoHours = 2 * 60 * 60 * 1000;
-            if (Date.now() - pending.timestamp < twoHours) {
-              // Pass Dodo params to account page so it can confirm the purchase
-              window.location.href = 'account.html?status=succeeded';
-              return;
-            }
-          }
-        } catch (e) { /* ignore */ }
+      var paymentId = params.get('payment_id');
+      if (dodoStatus === 'succeeded' && paymentId) {
+        window.location.href = 'account.html?payment_id=' + encodeURIComponent(paymentId) + '&status=succeeded';
+        return;
       }
     })();
 

@@ -1,4 +1,4 @@
-﻿// Firebase Auth — client-side SDK initialization and helpers
+// Firebase Auth — client-side SDK initialization and helpers
 // Uses Firebase v9+ compat (CDN) loaded in HTML pages
 
 const FIREBASE_CONFIG = {
@@ -45,6 +45,12 @@ async function signInWithGoogle() {
   const auth = getAuth();
   const provider = new firebase.auth.GoogleAuthProvider();
   return auth.signInWithPopup(provider);
+}
+
+// Send password reset email
+async function sendPasswordReset(email) {
+  const auth = getAuth();
+  return auth.sendPasswordResetEmail(email);
 }
 
 // Sign out

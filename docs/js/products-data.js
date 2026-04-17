@@ -1,4 +1,4 @@
-﻿// Central product catalog data
+// Central product catalog data
 const PRODUCTS = [
   {
     id: 'effort-2-rapid',
@@ -14,7 +14,8 @@ const PRODUCTS = [
       logo: './assets/products/Free Products/Effort 2 Rapid/Effort2Rapid.png',
       splash: './assets/products/Free Products/Effort 2 Rapid/Effort2RapidSplash.png'
     },
-    features: ['100% offline', 'Lightweight & fast', 'Zero data collection', 'Free forever']
+    videoId: '2IBtau9cnN8',
+    features: ['100% offline', 'Lightweight & fast', 'Zero data collection', 'Free forever', 'Windows only']
   },
   {
     id: 'sweet-juices-lite',
@@ -30,7 +31,7 @@ const PRODUCTS = [
       logo: './assets/products/Free Products/Sweet Juices Lite/SJLite.png',
       splash: './assets/products/Free Products/Sweet Juices Lite/SJliteSplash.png'
     },
-    features: ['100% offline', 'Creative AI assistant', 'On-device processing', 'Free forever']
+    features: ['100% offline', 'Creative AI assistant', 'On-device processing', 'Free forever', 'Windows only']
   },
   {
     id: 'effort-2-plus',
@@ -46,8 +47,9 @@ const PRODUCTS = [
       logo: './assets/products/Premium Products/Effort 2 Plus/Effort2Plus.png',
       splash: './assets/products/Premium Products/Effort 2 Plus/Effort2PlusSplash.png'
     },
+    videoId: '2IBtau9cnN8',
     dodoLink: 'https://checkout.dodopayments.com/buy/pdt_0NcXcoZDnziuqdKSBEiC0?quantity=1&redirect_url=https://ai.bangorinas.com', // Replace with Dodo Payment Link from dashboard
-    features: ['Advanced AI model', '100% offline & private', 'Extended features', 'Priority updates']
+    features: ['Advanced AI model', '100% offline & private', 'Extended features', 'Priority updates', 'Windows only']
   },
   {
     id: 'sweet-juices-peak',
@@ -64,7 +66,7 @@ const PRODUCTS = [
       splash: './assets/products/Premium Products/Sweet Juices Peak/SJSplash.png'
     },
     dodoLink: 'https://checkout.dodopayments.com/buy/pdt_0NcXd6oRSNiJ7JPGmQu4S?quantity=1&redirect_url=https://ai.bangorinas.com', // Replace with Dodo Payment Link from dashboard
-    features: ['Premium AI model', 'Full creative suite', '100% offline & private', 'Priority updates']
+    features: ['Premium AI model', 'Full creative suite', '100% offline & private', 'Priority updates', 'Windows only']
   },
   {
     id: 'nuclear-bundle',
@@ -81,7 +83,7 @@ const PRODUCTS = [
       splash: './assets/products/NuClear Bundle - AI Suite/NuClear_Teaser_1600x900.png'
     },
     dodoLink: 'https://checkout.dodopayments.com/buy/pdt_0NcXdOXkV8cLZSK3HAExJ?quantity=1&redirect_url=https://ai.bangorinas.com', // Replace with Dodo Payment Link from dashboard
-    features: ['3 apps in 1 bundle', '50% discount', 'Free OutVibe bonus', 'Complete AI suite'],
+    features: ['3 apps in 1 bundle', '50% discount', 'Free OutVibe bonus', 'Complete AI suite', 'Windows only'],
     includedProducts: [
       { id: 'effort-2-plus', name: 'Effort 2 Plus', desc: 'Premium AI assistant', bonus: false },
       { id: 'sweet-juices-peak', name: 'Sweet Juices Peak', desc: 'Premium creative suite', bonus: false },

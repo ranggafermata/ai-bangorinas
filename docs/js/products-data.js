@@ -14,7 +14,7 @@ const PRODUCTS = [
       logo: './assets/products/Free Products/Effort 2 Rapid/Effort2Rapid.png',
       splash: './assets/products/Free Products/Effort 2 Rapid/Effort2RapidSplash.png'
     },
-    videoId: '2IBtau9cnN8',
+    videoId: '6HAeelFf-5k',
     features: ['100% offline', 'Lightweight & fast', 'Zero data collection', 'Free forever', 'Windows only']
   },
   {
@@ -47,7 +47,7 @@ const PRODUCTS = [
       logo: './assets/products/Premium Products/Effort 2 Plus/Effort2Plus.png',
       splash: './assets/products/Premium Products/Effort 2 Plus/Effort2PlusSplash.png'
     },
-    videoId: '2IBtau9cnN8',
+    videoId: '6HAeelFf-5k',
     dodoLink: 'https://checkout.dodopayments.com/buy/pdt_0NcXcoZDnziuqdKSBEiC0?quantity=1&redirect_url=https://ai.bangorinas.com', // Replace with Dodo Payment Link from dashboard
     features: ['Advanced AI model', '100% offline & private', 'Extended features', 'Priority updates', 'Windows only']
   },

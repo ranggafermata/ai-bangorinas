@@ -31,6 +31,7 @@ const PRODUCTS = [
       logo: './assets/products/Free Products/Sweet Juices Lite/SJLite.png',
       splash: './assets/products/Free Products/Sweet Juices Lite/SJliteSplash.png'
     },
+    videoId:'mR-8QdIjIIo',
     features: ['100% offline', 'Creative AI assistant', 'On-device processing', 'Free forever', 'Windows only']
   },
   {
